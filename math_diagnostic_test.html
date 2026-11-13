@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Diagnostic Test (1st - 12th Grade)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .option-card {
+            transition: all 0.2s ease;
+        }
+        .option-card:hover {
+            transform: translateY(-2px);
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .option-card.selected {
+            border-color: #2563eb;
+            background-color: #dbeafe;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.1), 0 2px 4px -1px rgba(37, 99, 235, 0.06);
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col justify-between min-h-screen">
+
+    <!-- Header -->
+    <header class="w-full bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-xl shadow-md shadow-blue-500/20 flex items-center justify-center">
+                    <i class="fa-solid fa-square-root-variable text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-slate-900 tracking-tight">MathCompass</h1>
+                    <p class="text-xs text-slate-500">Grade 1–12 Diagnostic Assessment</p>
+                </div>
+            </div>
+            <div id="header-progress" class="hidden text-sm font-medium text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg">
+                Question <span id="current-q-num">1</span> of <span id="total-q-num">12</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-3xl w-full mx-auto px-4 py-8 flex-grow flex items-center justify-center">
+
+        <!-- 1. WELCOME SCREEN -->
+        <div id="welcome-screen" class="bg-white rounded-2xl shadow-xl border border-slate-100 p-8 md:p-10 w-full fade-in text-center">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl mx-auto flex items-center justify-center text-2xl mb-6 shadow-inner">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-3">Discover Your Math Level</h2>
+            <p class="text-slate-600 max-w-lg mx-auto mb-6 text-sm md:text-base leading-relaxed">
+                Take our adaptive diagnostic assessment spanning 1st through 12th grade. Pinpoint your mathematical strengths, identify growth areas, and get an accurate grade-level estimation.
+            </p>
+
+            <!-- Adaptive History Indicator -->
+            <div id="history-banner" class="hidden max-w-lg mx-auto mb-6 bg-amber-50 border border-amber-200/80 rounded-xl p-3.5 text-left flex items-center justify-between gap-3">
+                <div class="flex items-start space-x-2.5">
+                    <i class="fa-solid fa-brain text-amber-600 mt-0.5 text-sm"></i>
+                    <div>
+                        <div class="text-xs font-bold text-amber-900 uppercase tracking-wider">Adaptive Focus Active</div>
+                        <p id="history-banner-text" class="text-xs text-amber-800 mt-0.5">Focusing extra questions on past weak areas.</p>
+                    </div>
+                </div>
+                <button onclick="resetHistory()" class="shrink-0 text-xs font-semibold text-amber-700 hover:text-amber-900 bg-amber-100 hover:bg-amber-200/70 px-2.5 py-1.5 rounded-lg transition-colors">
+                    Reset History
+                </button>
+            </div>
+
+            <!-- Question Count Selector -->
+            <div class="max-w-md mx-auto mb-8 bg-slate-50 border border-slate-200/80 rounded-2xl p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <label for="question-count-slider" class="text-xs font-bold text-slate-700 uppercase tracking-wider">Test Length</label>
+                    <span id="selected-count-badge" class="text-xs font-bold bg-blue-100 text-blue-700 px-2.5 py-0.5 rounded-md">12 Questions</span>
+                </div>
+                <div class="grid grid-cols-4 gap-2 mb-3">
+                    <button type="button" onclick="setQuestionCount(12)" class="count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-blue-600 bg-blue-600 text-white transition-all" data-count="12">12 Qs</button>
+                    <button type="button" onclick="setQuestionCount(24)" class="count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 transition-all" data-count="24">24 Qs</button>
+                    <button type="button" onclick="setQuestionCount(36)" class="count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 transition-all" data-count="36">36 Qs</button>
+                    <button type="button" onclick="setQuestionCount(48)" class="count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 transition-all" data-count="48">48 Qs</button>
+                </div>
+                <input id="question-count-slider" type="range" min="12" max="48" step="4" value="12" oninput="setQuestionCount(this.value)" class="w-full h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
+                <div class="flex justify-between text-[10px] text-slate-400 mt-1 font-medium">
+                    <span>Quick (12)</span>
+                    <span>Standard (24)</span>
+                    <span>Thorough (36)</span>
+                    <span>Deep (48)</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left">
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                    <div class="text-blue-600 font-semibold text-sm mb-1"><i class="fa-solid fa-bars-progress mr-2"></i>All 12 Grades</div>
+                    <p class="text-xs text-slate-500">Balanced coverage from 1st grade arithmetic to 12th grade calculus.</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                    <div class="text-emerald-600 font-semibold text-sm mb-1"><i class="fa-solid fa-chart-pie mr-2"></i>Grade Breakdown</div>
+                    <p class="text-xs text-slate-500">Complete score breakdown across every single grade level.</p>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/60">
+                    <div class="text-purple-600 font-semibold text-sm mb-1"><i class="fa-solid fa-wand-magic-sparkles mr-2"></i>Smart Weighting</div>
+                    <p class="text-xs text-slate-500">Past weak spots automatically receive extra practice in future tests.</p>
+                </div>
+            </div>
+
+            <button id="start-quiz-btn" type="button" onclick="startQuiz()" class="w-full md:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-95 text-base flex items-center justify-center mx-auto">
+                <span>Start Diagnostic Test</span>
+                <i class="fa-solid fa-arrow-right ml-2 text-sm"></i>
+            </button>
+        </div>
+
+        <!-- 2. QUIZ SCREEN -->
+        <div id="quiz-screen" class="hidden bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-10 w-full fade-in">
+            <!-- Progress Bar -->
+            <div class="mb-6">
+                <div class="flex justify-between text-xs font-semibold text-slate-500 mb-2">
+                    <span id="grade-label-tag" class="bg-blue-50 text-blue-700 px-2.5 py-1 rounded-md uppercase tracking-wider text-[11px]">Grade Level</span>
+                    <span id="progress-percent">8%</span>
+                </div>
+                <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                    <div id="progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 8.33%;"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="mb-8">
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-slate-900 mb-6 leading-snug">
+                    Loading question...
+                </h3>
+                
+                <!-- Options Grid -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Dynamic options will load here -->
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                <button id="prev-btn" onclick="prevQuestion()" class="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-medium rounded-xl text-sm transition-all flex items-center disabled:opacity-40 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-arrow-left mr-2"></i> Previous
+                </button>
+                <button id="next-btn" onclick="nextQuestion()" disabled class="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>Next Question</span> <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 3. RESULTS SCREEN -->
+        <div id="results-screen" class="hidden bg-white rounded-2xl shadow-xl border border-slate-100 p-6 md:p-10 w-full fade-in">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl mb-4 shadow-inner text-3xl">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-900 mb-1">Diagnostic Complete!</h2>
+                <p class="text-slate-500 text-sm">Here is a detailed breakdown of your mathematical proficiency.</p>
+            </div>
+
+            <!-- Grade & Score Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                <div class="bg-gradient-to-br from-blue-600 to-indigo-700 text-white p-6 rounded-2xl shadow-lg shadow-blue-500/15 flex flex-col justify-between">
+                    <div>
+                        <div class="text-blue-100 text-xs font-semibold uppercase tracking-wider mb-1">Estimated Math Level</div>
+                        <div id="result-grade-level" class="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">Grade 8</div>
+                        <p id="result-tier-desc" class="text-blue-100 text-xs md:text-sm leading-relaxed">Solid grasp of middle school mathematics and foundational algebra.</p>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-blue-500/40 flex justify-between items-center text-xs text-blue-100">
+                        <span>Confidence Index</span>
+                        <span id="confidence-badge" class="bg-blue-500/40 px-2 py-0.5 rounded font-medium">High</span>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200/80 p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <div class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">Overall Performance</div>
+                        <div class="flex items-baseline space-x-2 mb-2">
+                            <span id="result-score-percent" class="text-3xl md:text-4xl font-extrabold text-slate-900">75%</span>
+                            <span id="result-score-fraction" class="text-slate-500 text-sm font-medium">(9 / 12 correct)</span>
+                        </div>
+                        <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mb-2">
+                            <div id="result-score-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 75%;"></div>
+                        </div>
+                    </div>
+                    <div class="text-xs text-slate-500 flex justify-between items-center pt-2">
+                        <span>Accuracy status</span>
+                        <span id="accuracy-status-text" class="text-emerald-600 font-semibold">Proficient</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strengths & Areas for Improvement -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="bg-emerald-50/60 border border-emerald-100 p-5 rounded-xl">
+                    <h4 class="font-semibold text-emerald-900 text-sm mb-3 flex items-center">
+                        <i class="fa-solid fa-circle-check text-emerald-600 mr-2"></i> Key Strengths
+                    </h4>
+                    <ul id="strengths-list" class="space-y-2 text-xs md:text-sm text-emerald-800">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+                <div class="bg-amber-50/60 border border-amber-100 p-5 rounded-xl">
+                    <h4 class="font-semibold text-amber-900 text-sm mb-3 flex items-center">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600 mr-2"></i> Areas for Growth
+                    </h4>
+                    <ul id="improvements-list" class="space-y-2 text-xs md:text-sm text-amber-800">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 1st to 12th Grade Score Breakdown Grid -->
+            <div class="mb-8 bg-slate-50 border border-slate-200/80 rounded-2xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center">
+                        <i class="fa-solid fa-layer-group text-blue-600 mr-2"></i> Score Breakdown by Grade (Grades 1–12)
+                    </h4>
+                    <span class="text-[11px] text-slate-500">Saved to learning profile</span>
+                </div>
+                <div id="grade-breakdown-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Question Review Accordion Toggle / Summary -->
+            <div class="mb-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h4 class="font-bold text-slate-900 text-sm">Question Breakdown Review</h4>
+                    <button onclick="toggleReviewList()" id="toggle-review-btn" class="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center">
+                        <span>View Details</span> <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>
+                    </button>
+                </div>
+                <div id="review-container" class="hidden space-y-3 max-h-72 overflow-y-auto pr-1">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4 border-t border-slate-100">
+                <button onclick="restartQuiz()" class="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-blue-500/20 transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-rotate-right mr-2"></i> Retake Test
+                </button>
+                <button onclick="printResults()" class="w-full sm:w-auto px-6 py-3 border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm transition-all flex items-center justify-center">
+                    <i class="fa-solid fa-print mr-2"></i> Print Summary
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-4 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white/40">
+        MathCompass Diagnostic &bull; Designed for Grades 1–12 Self-Assessment
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        const STORAGE_KEY = 'mathCompass_gradeHistory_v1';
+
+        // Utility helpers for procedural generation
+        const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+        const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const gcd = (a, b) => {
+            a = Math.abs(a);
+            b = Math.abs(b);
+            while (b !== 0) {
+                const t = b;
+                b = a % b;
+                a = t;
+            }
+            return a || 1;
+        };
+
+        // Builds exactly 4 unique, shuffled multiple-choice options and returns { options, answer }
+        function buildChoices(correctValue, distractors, fallbackFn) {
+            const correctStr = String(correctValue);
+            const seen = new Set([correctStr]);
+            const pool = [correctStr];
+
+            for (const d of distractors) {
+                const s = String(d);
+                if (s && s !== 'NaN' && s !== 'undefined' && !seen.has(s)) {
+                    seen.add(s);
+                    pool.push(s);
+                    if (pool.length === 4) break;
+                }
+            }
+
+            let guard = 0;
+            while (pool.length < 4 && guard < 50) {
+                guard++;
+                let candidate;
+                if (fallbackFn) {
+                    candidate = String(fallbackFn(guard));
+                } else if (!isNaN(Number(correctValue))) {
+                    const num = Number(correctValue);
+                    const delta = (guard % 2 === 0 ? 1 : -1) * Math.ceil(guard / 2);
+                    candidate = Number.isInteger(num) ? String(num + delta) : String(+(num + delta * 0.5).toFixed(2));
+                } else {
+                    candidate = `${correctStr} (${guard})`;
+                }
+                if (candidate && candidate !== 'NaN' && candidate !== 'undefined' && !seen.has(candidate)) {
+                    seen.add(candidate);
+                    pool.push(candidate);
+                }
+            }
+
+            // Shuffle options
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            return {
+                options: pool,
+                answer: pool.indexOf(correctStr)
+            };
+        }
+
+        // Procedural Question Generators for Grades 1 through 12 (3+ distinct templates per grade)
+        const gradeGenerators = {
+            1: [
+                // Basic addition within 20
+                () => {
+                    const a = rand(2, 12);
+                    const b = rand(2, 20 - a);
+                    const ans = a + b;
+                    const { options, answer } = buildChoices(ans, [ans + 1, ans - 1, ans + 2], (i) => ans + i + 2);
+                    return {
+                        grade: 1,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${a} + ${b}?`,
+                        options,
+                        answer,
+                        explanation: `Starting at ${a} and counting up ${b} gives ${ans}.`
+                    };
+                },
+                // Basic subtraction within 20
+                () => {
+                    const ans = rand(2, 11);
+                    const b = rand(2, 9);
+                    const a = ans + b;
+                    const { options, answer } = buildChoices(ans, [ans + 1, Math.max(0, ans - 1), a + b], (i) => ans + i + 1);
+                    return {
+                        grade: 1,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${a} - ${b}?`,
+                        options,
+                        answer,
+                        explanation: `Since ${ans} + ${b} = ${a}, subtracting ${b} from ${a} equals ${ans}.`
+                    };
+                },
+                // Missing addend within 20
+                () => {
+                    const a = rand(2, 10);
+                    const ans = rand(2, 10);
+                    const total = a + ans;
+                    const { options, answer } = buildChoices(ans, [total + a, ans + 1, Math.max(1, ans - 1)], (i) => ans + i + 1);
+                    return {
+                        grade: 1,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `Find the missing number: ${a} + ? = ${total}`,
+                        options,
+                        answer,
+                        explanation: `We need ${ans} more to get from ${a} to ${total}, because ${a} + ${ans} = ${total}.`
+                    };
+                }
+            ],
+
+            2: [
+                // Two-digit addition with carrying
+                () => {
+                    const a = rand(15, 58);
+                    const b = rand(14, 39);
+                    const ans = a + b;
+                    const { options, answer } = buildChoices(ans, [ans - 10, ans + 10, ans - 1], (i) => ans + i * 2);
+                    return {
+                        grade: 2,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${a} + ${b}?`,
+                        options,
+                        answer,
+                        explanation: `Add the tens and ones carefully (regrouping if ones ≥ 10): ${a} + ${b} = ${ans}.`
+                    };
+                },
+                // Two-digit subtraction
+                () => {
+                    const ans = rand(18, 54);
+                    const b = rand(12, 35);
+                    const a = ans + b;
+                    const { options, answer } = buildChoices(ans, [ans + 10, Math.max(1, ans - 10), ans + 2], (i) => ans + i + 3);
+                    return {
+                        grade: 2,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${a} - ${b}?`,
+                        options,
+                        answer,
+                        explanation: `Subtracting ${b} from ${a} gives ${ans} (check: ${ans} + ${b} = ${a}).`
+                    };
+                },
+                // Place value (tens and ones)
+                () => {
+                    const tens = rand(2, 9);
+                    const ones = rand(1, 9);
+                    const ans = tens * 10 + ones;
+                    const { options, answer } = buildChoices(ans, [ones * 10 + tens, tens + ones, ans + 10], (i) => ans + i);
+                    return {
+                        grade: 2,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What number is equal to ${tens} tens and ${ones} ones?`,
+                        options,
+                        answer,
+                        explanation: `${tens} tens is ${tens * 10}, plus ${ones} ones equals ${ans}.`
+                    };
+                }
+            ],
+
+            3: [
+                // Single-digit multiplication
+                () => {
+                    const a = rand(3, 9);
+                    const b = rand(4, 9);
+                    const ans = a * b;
+                    const { options, answer } = buildChoices(ans, [ans + a, ans - b, a + b], (i) => ans + i * 3);
+                    return {
+                        grade: 3,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${a} × ${b}?`,
+                        options,
+                        answer,
+                        explanation: `${a} groups of ${b} equals ${ans}.`
+                    };
+                },
+                // Basic division with clean integer quotients
+                () => {
+                    const divisor = rand(3, 9);
+                    const ans = rand(4, 10);
+                    const dividend = divisor * ans;
+                    const { options, answer } = buildChoices(ans, [ans + 1, ans - 1, divisor], (i) => ans + i + 1);
+                    return {
+                        grade: 3,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `What is ${dividend} ÷ ${divisor}?`,
+                        options,
+                        answer,
+                        explanation: `Since ${divisor} × ${ans} = ${dividend}, ${dividend} ÷ ${divisor} = ${ans}.`
+                    };
+                },
+                // Perimeter of a rectangle
+                () => {
+                    const l = rand(5, 12);
+                    const w = rand(2, l - 1);
+                    const ans = 2 * (l + w);
+                    const { options, answer } = buildChoices(`${ans} cm`, [`${l + w} cm`, `${l * w} cm`, `${ans + 2} cm`], (i) => `${ans + i * 2} cm`);
+                    return {
+                        grade: 3,
+                        tier: "Early Elementary (Grades 1-3)",
+                        question: `A rectangle has a length of ${l} cm and a width of ${w} cm. What is its perimeter?`,
+                        options,
+                        answer,
+                        explanation: `Perimeter is the distance around all four sides: 2 × (${l} + ${w}) = ${ans} cm.`
+                    };
+                }
+            ],
+
+            4: [
+                // 2-digit by 1-digit multiplication
+                () => {
+                    const a = rand(14, 38);
+                    const b = rand(4, 8);
+                    const ans = a * b;
+                    const { options, answer } = buildChoices(ans, [ans + b, ans - 10, (a + 1) * b], (i) => ans + i * 4);
+                    return {
+                        grade: 4,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `What is ${a} × ${b}?`,
+                        options,
+                        answer,
+                        explanation: `Multiply tens and ones by ${b}: (${Math.floor(a / 10) * 10} × ${b}) + (${a % 10} × ${b}) = ${ans}.`
+                    };
+                },
+                // Adding fractions with like denominators
+                () => {
+                    const den = pick([5, 7, 9, 11]);
+                    const n1 = rand(1, Math.floor(den / 2));
+                    const n2 = rand(1, den - n1 - 1);
+                    const ans = `${n1 + n2}/${den}`;
+                    const { options, answer } = buildChoices(ans, [`${n1 + n2}/${den * 2}`, `${n1 + n2 + 1}/${den}`, `${Math.max(1, n1 + n2 - 1)}/${den}`]);
+                    return {
+                        grade: 4,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `What is ${n1}/${den} + ${n2}/${den}?`,
+                        options,
+                        answer,
+                        explanation: `When denominators are the same, add the numerators: (${n1} + ${n2})/${den} = ${ans}.`
+                    };
+                },
+                // Rounding to nearest hundred
+                () => {
+                    const hundreds = rand(2, 8) * 100;
+                    const rem = rand(11, 89);
+                    const num = hundreds + rem;
+                    const ans = rem >= 50 ? hundreds + 100 : hundreds;
+                    const other = rem >= 50 ? hundreds : hundreds + 100;
+                    const { options, answer } = buildChoices(ans, [other, Math.round(num / 10) * 10, ans + 100], (i) => ans + i * 100);
+                    return {
+                        grade: 4,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `What is ${num} rounded to the nearest hundred?`,
+                        options,
+                        answer,
+                        explanation: `Look at the tens digit (${Math.floor(rem / 10)}). Since it is ${rem >= 50 ? '5 or greater, round up' : 'less than 5, round down'} to ${ans}.`
+                    };
+                }
+            ],
+
+            5: [
+                // Order of operations (PEMDAS without exponents)
+                () => {
+                    const a = rand(3, 9);
+                    const b = rand(2, 6);
+                    const c = rand(2, 12);
+                    const ans = a * b + c;
+                    const mistake = a * (b + c);
+                    const { options, answer } = buildChoices(ans, [mistake, ans + a, Math.max(1, ans - c)], (i) => ans + i * 2);
+                    return {
+                        grade: 5,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `Evaluate: ${a} × ${b} + ${c}`,
+                        options,
+                        answer,
+                        explanation: `By order of operations (PEMDAS), multiply first: ${a} × ${b} = ${a * b}, then add ${c} to get ${ans}.`
+                    };
+                },
+                // Volume of a rectangular prism
+                () => {
+                    const l = rand(3, 7);
+                    const w = rand(2, 6);
+                    const h = rand(2, 5);
+                    const ans = l * w * h;
+                    const { options, answer } = buildChoices(`${ans} cm³`, [`${l + w + h} cm³`, `${2 * (l * w + w * h + l * h)} cm³`, `${ans + l} cm³`]);
+                    return {
+                        grade: 5,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `Find the volume of a rectangular prism measuring ${l} cm by ${w} cm by ${h} cm.`,
+                        options,
+                        answer,
+                        explanation: `Volume = length × width × height = ${l} × ${w} × ${h} = ${ans} cm³.`
+                    };
+                },
+                // Adding unlike-denominator fractions (simplified)
+                () => {
+                    const pairs = [
+                        { f1: "1/2", f2: "1/4", num: 3, den: 4 },
+                        { f1: "2/3", f2: "1/6", num: 5, den: 6 },
+                        { f1: "3/4", f2: "1/8", num: 7, den: 8 },
+                        { f1: "1/3", f2: "1/6", num: 1, den: 2 },
+                        { f1: "2/5", f2: "3/10", num: 7, den: 10 },
+                        { f1: "3/4", f2: "1/2", num: 5, den: 4 }
+                    ];
+                    const item = pick(pairs);
+                    const ans = `${item.num}/${item.den}`;
+                    const { options, answer } = buildChoices(ans, [`${item.num + 1}/${item.den}`, `2/${item.den + 2}`, `${Math.max(1, item.num - 1)}/${item.den}`]);
+                    return {
+                        grade: 5,
+                        tier: "Upper Elementary (Grades 4-5)",
+                        question: `What is ${item.f1} + ${item.f2} in simplest form?`,
+                        options,
+                        answer,
+                        explanation: `Find a common denominator, add the numerators, and simplify to get ${ans}.`
+                    };
+                }
+            ],
+
+            6: [
+                // Percentage of a number
+                () => {
+                    const pct = pick([15, 20, 25, 30, 35, 40, 60, 75]);
+                    const base = pick([40, 60, 80, 120, 160, 200]);
+                    const ans = (pct * base) / 100;
+                    const { options, answer } = buildChoices(ans, [ans + 5, Math.max(1, ans - 5), Math.round(base / pct * 10)], (i) => ans + i * 4);
+                    return {
+                        grade: 6,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `What is ${pct}% of ${base}?`,
+                        options,
+                        answer,
+                        explanation: `Convert ${pct}% to ${pct / 100} and multiply by ${base}: ${pct / 100} × ${base} = ${ans}.`
+                    };
+                },
+                // Evaluating algebraic expressions with substitution
+                () => {
+                    const a = rand(2, 6);
+                    const x = rand(3, 8);
+                    const b = rand(2, 12);
+                    const ans = a * x - b;
+                    const { options, answer } = buildChoices(ans, [a * x + b, (a + x) - b, ans + a], (i) => ans + i * 2);
+                    return {
+                        grade: 6,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `Evaluate ${a}x - ${b} when x = ${x}.`,
+                        options,
+                        answer,
+                        explanation: `Substitute x = ${x}: ${a}(${x}) - ${b} = ${a * x} - ${b} = ${ans}.`
+                    };
+                },
+                // Area of a triangle
+                () => {
+                    const b = rand(3, 8) * 2;
+                    const h = rand(4, 11);
+                    const ans = (b * h) / 2;
+                    const { options, answer } = buildChoices(`${ans} cm²`, [`${b * h} cm²`, `${b + h} cm²`, `${ans + b} cm²`]);
+                    return {
+                        grade: 6,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `What is the area of a triangle with a base of ${b} cm and a height of ${h} cm?`,
+                        options,
+                        answer,
+                        explanation: `Area = ½ × base × height = ½ × ${b} × ${h} = ${ans} cm².`
+                    };
+                }
+            ],
+
+            7: [
+                // Two-step linear equation with integer solution
+                () => {
+                    const ans = rand(-6, 11);
+                    const a = rand(2, 6);
+                    const b = rand(2, 15);
+                    const c = a * ans + b;
+                    const { options, answer } = buildChoices(ans, [-ans, ans + 2, Math.round((c + b) / a)], (i) => ans + i + 2);
+                    return {
+                        grade: 7,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `Solve for y: ${a}y + ${b} = ${c}`,
+                        options,
+                        answer,
+                        explanation: `Subtract ${b} from both sides to get ${a}y = ${c - b}, then divide by ${a}: y = ${ans}.`
+                    };
+                },
+                // Negative integer operations
+                () => {
+                    const a = -rand(4, 14);
+                    const b = -rand(3, 9);
+                    const c = rand(2, 6);
+                    const ans = a - b * c;
+                    const { options, answer } = buildChoices(ans, [a + b * c, (a - b) * c, -ans], (i) => ans + i * 3);
+                    return {
+                        grade: 7,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `Evaluate: ${a} - (${b}) × ${c}`,
+                        options,
+                        answer,
+                        explanation: `Multiply first: (${b}) × ${c} = ${b * c}. Then ${a} - (${b * c}) = ${a} + ${Math.abs(b * c)} = ${ans}.`
+                    };
+                },
+                // Circumference of a circle in terms of π
+                () => {
+                    const r = rand(3, 12);
+                    const ans = 2 * r;
+                    const { options, answer } = buildChoices(`${ans}π cm`, [`${r}π cm`, `${r * r}π cm`, `${ans + 2}π cm`]);
+                    return {
+                        grade: 7,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `What is the circumference of a circle with a radius of ${r} cm? (Leave answer in terms of π)`,
+                        options,
+                        answer,
+                        explanation: `Circumference C = 2πr = 2 × π × ${r} = ${ans}π cm.`
+                    };
+                }
+            ],
+
+            8: [
+                // Slope between two points
+                () => {
+                    const m = pick([-3, -2, -1, 2, 3, 4]);
+                    const x1 = rand(-3, 4);
+                    const y1 = rand(-4, 6);
+                    const dx = rand(2, 5);
+                    const x2 = x1 + dx;
+                    const y2 = y1 + m * dx;
+                    const { options, answer } = buildChoices(m, [-m, m + 1, dx], (i) => m + i + 1);
+                    return {
+                        grade: 8,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `What is the slope of the line passing through (${x1}, ${y1}) and (${x2}, ${y2})?`,
+                        options,
+                        answer,
+                        explanation: `Slope m = (${y2} - ${y1}) / (${x2} - ${x1}) = ${y2 - y1} / ${dx} = ${m}.`
+                    };
+                },
+                // Pythagorean theorem using clean triples
+                () => {
+                    const triples = [[3, 4, 5], [6, 8, 10], [5, 12, 13], [8, 15, 17], [9, 12, 15]];
+                    const [a, b, c] = pick(triples);
+                    const { options, answer } = buildChoices(`${c} cm`, [`${a + b} cm`, `${c + 2} cm`, `${b + 1} cm`]);
+                    return {
+                        grade: 8,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `A right triangle has legs of length ${a} cm and ${b} cm. What is the length of the hypotenuse?`,
+                        options,
+                        answer,
+                        explanation: `Using a² + b² = c²: ${a}² + ${b}² = ${a * a} + ${b * b} = ${c * c}, so c = √${c * c} = ${c} cm.`
+                    };
+                },
+                // Laws of exponents
+                () => {
+                    const p1 = rand(3, 7);
+                    const p2 = rand(2, 5);
+                    const p3 = rand(1, p1 + p2 - 2);
+                    const ansExp = p1 + p2 - p3;
+                    const { options, answer } = buildChoices(`x^${ansExp}`, [`x^${p1 * p2 - p3}`, `x^${p1 + p2 + p3}`, `x^${ansExp + 1}`]);
+                    return {
+                        grade: 8,
+                        tier: "Middle School (Grades 6-8)",
+                        question: `Simplify: (x^${p1} · x^${p2}) / x^${p3}`,
+                        options,
+                        answer,
+                        explanation: `Add exponents when multiplying (${p1} + ${p2} = ${p1 + p2}) and subtract when dividing (${p1 + p2} - ${p3} = ${ansExp}): x^${ansExp}.`
+                    };
+                }
+            ],
+
+            9: [
+                // Solving quadratic equations with integer roots
+                () => {
+                    const r1 = rand(2, 7);
+                    const r2 = -rand(1, 6);
+                    const b = -(r1 + r2);
+                    const c = r1 * r2;
+                    const bStr = b === 0 ? '' : (b > 0 ? ` + ${b}x` : ` - ${Math.abs(b)}x`);
+                    const cStr = c > 0 ? ` + ${c}` : ` - ${Math.abs(c)}`;
+                    const ans = `x = ${r1} or x = ${r2}`;
+                    const { options, answer } = buildChoices(ans, [
+                        `x = ${-r1} or x = ${-r2}`,
+                        `x = ${r1} or x = ${-r2}`,
+                        `x = ${r1 + 1} or x = ${r2 - 1}`
+                    ]);
+                    return {
+                        grade: 9,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `Solve for x: x²${bStr}${cStr} = 0`,
+                        options,
+                        answer,
+                        explanation: `Factor into (x - ${r1})(x + ${Math.abs(r2)}) = 0, giving roots x = ${r1} and x = ${r2}.`
+                    };
+                },
+                // Systems of two linear equations
+                () => {
+                    const x = rand(2, 7);
+                    const y = rand(1, 6);
+                    const k = rand(2, 4);
+                    const sum = x + y;
+                    const diffEq = k * x - y;
+                    const ans = `(${x}, ${y})`;
+                    const { options, answer } = buildChoices(ans, [`(${y}, ${x})`, `(${x + 1}, ${y - 1})`, `(${x - 1}, ${y + 1})`]);
+                    return {
+                        grade: 9,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `Solve the system of equations: x + y = ${sum} and ${k}x - y = ${diffEq}`,
+                        options,
+                        answer,
+                        explanation: `Adding the two equations eliminates y: ${k + 1}x = ${sum + diffEq} → x = ${x}. Substituting back gives y = ${y}.`
+                    };
+                },
+                // Function evaluation f(x)
+                () => {
+                    const a = rand(2, 5);
+                    const b = rand(1, 9);
+                    const input = -rand(2, 5);
+                    const ans = a * input - b;
+                    const { options, answer } = buildChoices(ans, [a * Math.abs(input) - b, a * input + b, ans - a], (i) => ans + i * 2);
+                    return {
+                        grade: 9,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `If f(x) = ${a}x - ${b}, what is f(${input})?`,
+                        options,
+                        answer,
+                        explanation: `Plug x = ${input} into the function: f(${input}) = ${a}(${input}) - ${b} = ${a * input} - ${b} = ${ans}.`
+                    };
+                }
+            ],
+
+            10: [
+                // Triangle exterior / interior angle theorem
+                () => {
+                    const a1 = rand(35, 75);
+                    const a2 = rand(35, 75);
+                    const ans = 180 - a1 - a2;
+                    const { options, answer } = buildChoices(`${ans}°`, [`${180 - a1}°`, `${a1 + a2}°`, `${ans + 10}°`]);
+                    return {
+                        grade: 10,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `Two interior angles of a triangle measure ${a1}° and ${a2}°. What is the measure of the third angle?`,
+                        options,
+                        answer,
+                        explanation: `The interior angles of a triangle always sum to 180°: 180° - (${a1}° + ${a2}°) = ${ans}°.`
+                    };
+                },
+                // Right-triangle trigonometry ratios
+                () => {
+                    const triples = [[3, 4, 5], [5, 12, 13], [8, 15, 17]];
+                    const [opp, adj, hyp] = pick(triples);
+                    const fn = pick(['sin(θ)', 'cos(θ)', 'tan(θ)']);
+                    const ans = fn === 'sin(θ)' ? `${opp}/${hyp}` : fn === 'cos(θ)' ? `${adj}/${hyp}` : `${opp}/${adj}`;
+                    const { options, answer } = buildChoices(ans, [`${adj}/${opp}`, `${hyp}/${opp}`, `${hyp}/${adj}`]);
+                    return {
+                        grade: 10,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `In a right triangle, the side opposite angle θ is ${opp}, the adjacent side is ${adj}, and the hypotenuse is ${hyp}. What is ${fn}?`,
+                        options,
+                        answer,
+                        explanation: `Using SOH-CAH-TOA, ${fn} equals ${ans}.`
+                    };
+                },
+                // Midpoint formula
+                () => {
+                    const mx = rand(-4, 6);
+                    const my = rand(-4, 6);
+                    const dx = rand(2, 5);
+                    const dy = rand(2, 5);
+                    const x1 = mx - dx, y1 = my - dy;
+                    const x2 = mx + dx, y2 = my + dy;
+                    const ans = `(${mx}, ${my})`;
+                    const { options, answer } = buildChoices(ans, [`(${dx}, ${dy})`, `(${mx * 2}, ${my * 2})`, `(${my}, ${mx})`]);
+                    return {
+                        grade: 10,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `Find the midpoint of the line segment joining (${x1}, ${y1}) and (${x2}, ${y2}).`,
+                        options,
+                        answer,
+                        explanation: `Midpoint = ((${x1} + ${x2})/2, (${y1} + ${y2})/2) = (${mx}, ${my}).`
+                    };
+                }
+            ],
+
+            11: [
+                // Logarithms
+                () => {
+                    const base = pick([2, 3, 4, 5]);
+                    const exp = rand(2, 5);
+                    const val = Math.pow(base, exp);
+                    const { options, answer } = buildChoices(exp, [exp + 1, Math.max(1, exp - 1), base], (i) => exp + i + 1);
+                    return {
+                        grade: 11,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Evaluate log_${base}(${val}).`,
+                        options,
+                        answer,
+                        explanation: `Since ${base}^${exp} = ${val}, log_${base}(${val}) = ${exp}.`
+                    };
+                },
+                // Complex number arithmetic
+                () => {
+                    const a = rand(2, 6);
+                    const b = rand(2, 6);
+                    // (a + bi)(a - bi) = a^2 + b^2
+                    const ans = a * a + b * b;
+                    const { options, answer } = buildChoices(ans, [a * a - b * b, `${ans}i`, a * 2 + b * 2], (i) => ans + i * 2);
+                    return {
+                        grade: 11,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Simplify (${a} + ${b}i)(${a} - ${b}i), where i = √(-1).`,
+                        options,
+                        answer,
+                        explanation: `Using difference of squares: ${a}² - (${b}i)² = ${a * a} - ${b * b}i². Since i² = -1, ${a * a} - (-${b * b}) = ${ans}.`
+                    };
+                },
+                // Arithmetic sequence nth term
+                () => {
+                    const a1 = rand(3, 12);
+                    const d = rand(3, 7);
+                    const n = rand(6, 11);
+                    const ans = a1 + (n - 1) * d;
+                    const { options, answer } = buildChoices(ans, [a1 + n * d, ans - d, a1 * n], (i) => ans + i * 2);
+                    return {
+                        grade: 11,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `In an arithmetic sequence, the first term is ${a1} and the common difference is ${d}. What is the ${n}th term?`,
+                        options,
+                        answer,
+                        explanation: `a_n = a_1 + (n - 1)d = ${a1} + (${n} - 1)(${d}) = ${a1} + ${(n - 1) * d} = ${ans}.`
+                    };
+                }
+            ],
+
+            12: [
+                // Derivative of a polynomial evaluated at x = c
+                () => {
+                    const a = rand(2, 5);
+                    const b = rand(2, 8);
+                    const c = rand(1, 4);
+                    // f(x) = a*x^2 + b*x => f'(x) = 2*a*x + b
+                    const ans = 2 * a * c + b;
+                    const { options, answer } = buildChoices(ans, [a * c + b, a * c * c + b * c, 2 * a * c], (i) => ans + i * 2);
+                    return {
+                        grade: 12,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `If f(x) = ${a}x² + ${b}x, what is f'(${c})?`,
+                        options,
+                        answer,
+                        explanation: `Using the power rule, f'(x) = ${2 * a}x + ${b}. Evaluating at x = ${c} gives ${2 * a}(${c}) + ${b} = ${ans}.`
+                    };
+                },
+                // Limit of a rational expression (removable discontinuity)
+                () => {
+                    const k = rand(2, 7);
+                    const ans = 2 * k;
+                    const { options, answer } = buildChoices(ans, [0, k, k * k], (i) => ans + i + 1);
+                    return {
+                        grade: 12,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Evaluate the limit: lim (x → ${k}) of (x² - ${k * k}) / (x - ${k})`,
+                        options,
+                        answer,
+                        explanation: `Factor the numerator as (x - ${k})(x + ${k}) and cancel (x - ${k}). Substituting x = ${k} into (x + ${k}) yields ${ans}.`
+                    };
+                },
+                // Exact unit circle trigonometry values
+                () => {
+                    const unitCircle = [
+                        { expr: "sin(π / 6)", ans: "1/2", wrong: ["√3 / 2", "√2 / 2", "1"] },
+                        { expr: "cos(π / 3)", ans: "1/2", wrong: ["√3 / 2", "√2 / 2", "0"] },
+                        { expr: "sin(π / 3)", ans: "√3 / 2", wrong: ["1/2", "√2 / 2", "1"] },
+                        { expr: "cos(π / 4)", ans: "√2 / 2", wrong: ["1/2", "√3 / 2", "1"] },
+                        { expr: "tan(π / 4)", ans: "1", wrong: ["0", "√3", "1/2"] }
+                    ];
+                    const item = pick(unitCircle);
+                    const { options, answer } = buildChoices(item.ans, item.wrong);
+                    return {
+                        grade: 12,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `What is the exact value of ${item.expr}?`,
+                        options,
+                        answer,
+                        explanation: `From the unit circle, ${item.expr} = ${item.ans}.`
+                    };
+                }
+            ]
+        };
+
+        let selectedQuestionCount = 12;
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        // DOM Elements
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultsScreen = document.getElementById('results-screen');
+        const headerProgress = document.getElementById('header-progress');
+        const currentQNumSpan = document.getElementById('current-q-num');
+        const totalQNumSpan = document.getElementById('total-q-num');
+        const gradeLabelTag = document.getElementById('grade-label-tag');
+        const progressBar = document.getElementById('progress-bar');
+        const progressPercent = document.getElementById('progress-percent');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+
+        // Load & Manage Persistent History in localStorage
+        function getGradeHistory() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveGradeHistory(history) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.warn('Unable to save history to localStorage');
+            }
+        }
+
+        function getStruggledGrades() {
+            const history = getGradeHistory();
+            const struggled = [];
+            for (let g = 1; g <= 12; g++) {
+                const record = history[g];
+                if (record && record.attempted > 0) {
+                    const accuracy = record.correct / record.attempted;
+                    if (accuracy < 0.7) {
+                        struggled.push({ grade: g, accuracy });
+                    }
+                }
+            }
+            // Sort lowest accuracy first
+            struggled.sort((a, b) => a.accuracy - b.accuracy);
+            return struggled;
+        }
+
+        function updateWelcomeHistoryBanner() {
+            const banner = document.getElementById('history-banner');
+            const bannerText = document.getElementById('history-banner-text');
+            const struggled = getStruggledGrades();
+
+            if (struggled.length > 0) {
+                const gradeLabels = struggled.slice(0, 4).map(item => `Grade ${item.grade}`);
+                const extraCount = struggled.length > 4 ? ` (+${struggled.length - 4} more)` : '';
+                bannerText.textContent = `Weighting extra practice toward past weak areas: ${gradeLabels.join(', ')}${extraCount}.`;
+                banner.classList.remove('hidden');
+            } else {
+                banner.classList.add('hidden');
+            }
+        }
+
+        function resetHistory() {
+            try {
+                localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+            updateWelcomeHistoryBanner();
+        }
+
+        function setQuestionCount(count) {
+            selectedQuestionCount = parseInt(count, 10) || 12;
+            const slider = document.getElementById('question-count-slider');
+            const badge = document.getElementById('selected-count-badge');
+            if (slider) slider.value = selectedQuestionCount;
+            if (badge) badge.textContent = `${selectedQuestionCount} Questions`;
+
+            document.querySelectorAll('.count-preset-btn').forEach(btn => {
+                const btnCount = parseInt(btn.getAttribute('data-count'), 10);
+                if (btnCount === selectedQuestionCount) {
+                    btn.className = 'count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-blue-600 bg-blue-600 text-white transition-all';
+                } else {
+                    btn.className = 'count-preset-btn py-1.5 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:border-blue-400 transition-all';
+                }
+            });
+        }
+
+        // Build test questions dynamically weighted by past performance while guaranteeing 1-12 coverage
+        function generateAdaptiveQuestionSet(totalCount) {
+            const history = getGradeHistory();
+
+            // Guarantee at least 1 question per grade (1 to 12) so full grade spectrum is always evaluated
+            const allocation = {};
+            for (let g = 1; g <= 12; g++) {
+                allocation[g] = 1;
+            }
+
+            let remainingSlots = totalCount - 12;
+
+            // Compute struggle weight per grade (higher weight = more struggled in past tests)
+            const weights = {};
+            let totalWeight = 0;
+            for (let g = 1; g <= 12; g++) {
+                const rec = history[g];
+                let w = 1.0;
+                if (rec && rec.attempted > 0) {
+                    const acc = rec.correct / rec.attempted;
+                    if (acc < 0.4) w = 4.0;       // Heavy struggle -> 4x weight
+                    else if (acc < 0.7) w = 2.5;  // Moderate struggle -> 2.5x weight
+                    else if (acc >= 0.9) w = 0.6; // Mastered -> lighter extra allocation
+                }
+                weights[g] = w;
+                totalWeight += w;
+            }
+
+            // Distribute remaining question slots proportionally to struggle weights
+            while (remainingSlots > 0) {
+                let pickRand = Math.random() * totalWeight;
+                let chosenGrade = 1;
+                for (let g = 1; g <= 12; g++) {
+                    pickRand -= weights[g];
+                    if (pickRand <= 0) {
+                        chosenGrade = g;
+                        break;
+                    }
+                }
+                allocation[chosenGrade]++;
+                remainingSlots--;
+            }
+
+            // Generate unique procedural questions per grade (Grades 1 to 12)
+            const selected = [];
+            const seenPrompts = new Set();
+
+            for (let g = 1; g <= 12; g++) {
+                const countForGrade = allocation[g];
+                const templates = gradeGenerators[g];
+
+                for (let i = 0; i < countForGrade; i++) {
+                    let generated = null;
+                    let attempts = 0;
+
+                    // Rotate through available templates first, then pick randomly while avoiding duplicate prompts
+                    while (attempts < 30) {
+                        const templateFn = attempts < templates.length
+                            ? templates[(i + attempts) % templates.length]
+                            : pick(templates);
+                        const candidate = templateFn();
+                        if (!seenPrompts.has(candidate.question) || attempts === 29) {
+                            seenPrompts.add(candidate.question);
+                            generated = candidate;
+                            break;
+                        }
+                        attempts++;
+                    }
+                    selected.push(generated);
+                }
+            }
+            return selected;
+        }
+
+        function startQuiz() {
+            questions = generateAdaptiveQuestionSet(selectedQuestionCount);
+            totalQNumSpan.textContent = questions.length;
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+            headerProgress.classList.remove('hidden');
+            currentQuestionIndex = 0;
+            userAnswers = new Array(questions.length).fill(null);
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            currentQNumSpan.textContent = currentQuestionIndex + 1;
+            gradeLabelTag.textContent = `Grade ${q.grade} • ${q.tier}`;
+            
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressPercent.textContent = `${Math.round(progress)}%`;
+
+            questionText.textContent = q.question;
+
+            optionsContainer.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const isSelected = userAnswers[currentQuestionIndex] === idx;
+                const card = document.createElement('div');
+                card.className = `option-card p-4 rounded-xl border border-slate-200 bg-white cursor-pointer flex items-center justify-between ${isSelected ? 'selected' : ''}`;
+                card.onclick = () => selectOption(idx);
+                
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600'}">
+                            ${String.fromCharCode(65 + idx)}
+                        </div>
+                        <span class="text-sm md:text-base font-medium text-slate-800">${opt}</span>
+                    </div>
+                    <div class="radio-indicator w-5 h-5 rounded-full border-2 ${isSelected ? 'border-blue-600 bg-blue-600 flex items-center justify-center text-white text-[10px]' : 'border-slate-300'}">
+                        ${isSelected ? '<i class="fa-solid fa-check"></i>' : ''}
+                    </div>
+                `;
+                optionsContainer.appendChild(card);
+            });
+
+            // Button states
+            prevBtn.disabled = currentQuestionIndex === 0;
+            if (userAnswers[currentQuestionIndex] !== null) {
+                nextBtn.disabled = false;
+                nextBtn.innerHTML = currentQuestionIndex === questions.length - 1 ? '<span>View Results</span> <i class="fa-solid fa-flag-checkered ml-2"></i>' : '<span>Next Question</span> <i class="fa-solid fa-arrow-right ml-2"></i>';
+            } else {
+                nextBtn.disabled = true;
+                nextBtn.innerHTML = currentQuestionIndex === questions.length - 1 ? '<span>View Results</span> <i class="fa-solid fa-flag-checkered ml-2"></i>' : '<span>Next Question</span> <i class="fa-solid fa-arrow-right ml-2"></i>';
+            }
+        }
+
+        function selectOption(optionIndex) {
+            userAnswers[currentQuestionIndex] = optionIndex;
+            loadQuestion();
+            nextBtn.disabled = false;
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            quizScreen.classList.add('hidden');
+            headerProgress.classList.add('hidden');
+            resultsScreen.classList.remove('hidden');
+
+            // Calculate Score, Per-Grade Stats & Update Persistent History
+            let correctCount = 0;
+            const currentTestGradeStats = {};
+            for (let g = 1; g <= 12; g++) {
+                currentTestGradeStats[g] = { correct: 0, total: 0 };
+            }
+
+            const tierScores = {
+                "Early Elementary (Grades 1-3)": { correct: 0, total: 0 },
+                "Upper Elementary (Grades 4-5)": { correct: 0, total: 0 },
+                "Middle School (Grades 6-8)": { correct: 0, total: 0 },
+                "High School Foundation (Grades 9-10)": { correct: 0, total: 0 },
+                "Advanced High School (Grades 11-12)": { correct: 0, total: 0 }
+            };
+
+            const history = getGradeHistory();
+
+            questions.forEach((q, idx) => {
+                const isCorrect = userAnswers[idx] === q.answer;
+                currentTestGradeStats[q.grade].total++;
+                tierScores[q.tier].total++;
+
+                if (!history[q.grade]) {
+                    history[q.grade] = { correct: 0, attempted: 0 };
+                }
+                history[q.grade].attempted++;
+
+                if (isCorrect) {
+                    correctCount++;
+                    currentTestGradeStats[q.grade].correct++;
+                    tierScores[q.tier].correct++;
+                    history[q.grade].correct++;
+                }
+            });
+
+            // Save updated history for future tests
+            saveGradeHistory(history);
+
+            // Diagnostic estimation algorithm scaled across all 12 grades:
+            // Evaluate mastery (>= 50% accuracy) per grade level sequentially with 1-grade slip tolerance
+            let estimatedGradeNum = 1;
+            let consecutiveMisses = 0;
+            for (let g = 1; g <= 12; g++) {
+                const stats = currentTestGradeStats[g];
+                const gradeAcc = stats.total > 0 ? stats.correct / stats.total : 0;
+                if (gradeAcc >= 0.5) {
+                    estimatedGradeNum = g;
+                    consecutiveMisses = 0;
+                } else {
+                    consecutiveMisses++;
+                    if (consecutiveMisses >= 2 && g <= 4) {
+                        break;
+                    }
+                }
+            }
+
+            // Refine estimation with overall percentage
+            const percentage = Math.round((correctCount / questions.length) * 100);
+            if (percentage >= 92) estimatedGradeNum = Math.max(estimatedGradeNum, 12);
+            else if (percentage >= 80) estimatedGradeNum = Math.max(estimatedGradeNum, 10);
+            else if (percentage <= 15) estimatedGradeNum = Math.min(estimatedGradeNum, 2);
+
+            // Populate Results UI
+            document.getElementById('result-grade-level').textContent = `Grade ${estimatedGradeNum}`;
+            document.getElementById('result-score-percent').textContent = `${percentage}%`;
+            document.getElementById('result-score-fraction').textContent = `(${correctCount} / ${questions.length} correct)`;
+            document.getElementById('result-score-bar').style.width = `${percentage}%`;
+            document.getElementById('confidence-badge').textContent = questions.length >= 24 ? "Very High" : "High";
+
+            let tierDesc = "";
+            if (estimatedGradeNum <= 3) {
+                tierDesc = "Demonstrates foundational number sense and elementary arithmetic proficiency.";
+            } else if (estimatedGradeNum <= 5) {
+                tierDesc = "Comfortable with upper elementary operations, fractions, and division.";
+            } else if (estimatedGradeNum <= 8) {
+                tierDesc = "Strong command of middle school math, ratios, integers, and basic algebraic principles.";
+            } else if (estimatedGradeNum <= 10) {
+                tierDesc = "Solid foundation in high school algebra and geometry concepts.";
+            } else {
+                tierDesc = "Advanced proficiency extending into trigonometry and calculus fundamentals.";
+            }
+            document.getElementById('result-tier-desc').textContent = tierDesc;
+
+            // Accuracy status text
+            const statusText = document.getElementById('accuracy-status-text');
+            if (percentage >= 80) {
+                statusText.textContent = "Advanced Mastery";
+                statusText.className = "text-emerald-600 font-semibold";
+            } else if (percentage >= 50) {
+                statusText.textContent = "Proficient";
+                statusText.className = "text-blue-600 font-semibold";
+            } else {
+                statusText.textContent = "Developing";
+                statusText.className = "text-amber-600 font-semibold";
+            }
+
+            // Render Grade 1-12 Breakdown Grid
+            const breakdownGrid = document.getElementById('grade-breakdown-grid');
+            breakdownGrid.innerHTML = '';
+            for (let g = 1; g <= 12; g++) {
+                const st = currentTestGradeStats[g];
+                const gPct = st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0;
+                const isWeak = gPct < 60;
+                const isPerfect = gPct === 100;
+
+                const badgeColor = isPerfect
+                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                    : isWeak
+                        ? 'bg-amber-100 text-amber-800 border-amber-200'
+                        : 'bg-blue-100 text-blue-800 border-blue-200';
+                const barColor = isPerfect ? 'bg-emerald-500' : isWeak ? 'bg-amber-500' : 'bg-blue-500';
+
+                const cell = document.createElement('div');
+                cell.className = 'bg-white border border-slate-200/80 rounded-xl p-3 flex flex-col justify-between';
+                cell.innerHTML = `
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-xs font-bold text-slate-800">Grade ${g}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${badgeColor}">${st.correct}/${st.total}</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-1">
+                        <div class="${barColor} h-1.5 rounded-full" style="width: ${gPct}%"></div>
+                    </div>
+                    <div class="flex justify-between items-center text-[10px] text-slate-500">
+                        <span>${gPct}%</span>
+                        <span>${isWeak ? 'Focus next' : 'Solid'}</span>
+                    </div>
+                `;
+                breakdownGrid.appendChild(cell);
+            }
+
+            // Strengths and Improvements
+            const strengthsList = document.getElementById('strengths-list');
+            const improvementsList = document.getElementById('improvements-list');
+            strengthsList.innerHTML = '';
+            improvementsList.innerHTML = '';
+
+            let hasStrengths = false;
+            let hasImprovements = false;
+
+            for (const [tier, data] of Object.entries(tierScores)) {
+                if (data.total === 0) continue;
+                const tierPercent = data.correct / data.total;
+                const li = document.createElement('li');
+                li.className = "flex items-start";
+                li.innerHTML = `<i class="fa-solid fa-check text-emerald-600 mr-2 mt-0.5"></i><span>${tier}: ${data.correct}/${data.total} correct</span>`;
+                
+                if (tierPercent >= 0.66) {
+                    strengthsList.appendChild(li);
+                    hasStrengths = true;
+                } else {
+                    const impLi = document.createElement('li');
+                    impLi.className = "flex items-start";
+                    impLi.innerHTML = `<i class="fa-solid fa-arrow-trend-up text-amber-600 mr-2 mt-0.5"></i><span>${tier}: ${data.correct}/${data.total} correct (weighted next test)</span>`;
+                    improvementsList.appendChild(impLi);
+                    hasImprovements = true;
+                }
+            }
+
+            if (!hasStrengths) {
+                strengthsList.innerHTML = `<li class="text-xs italic text-emerald-700">Fundamental arithmetic practice recommended across all tiers.</li>`;
+            }
+            if (!hasImprovements) {
+                improvementsList.innerHTML = `<li class="text-xs italic text-amber-700">Fantastic job! No major areas of weakness detected in this diagnostic.</li>`;
+            }
+
+            // Populate Review Breakdown
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+            questions.forEach((q, idx) => {
+                const userAnsIdx = userAnswers[idx];
+                const isCorrect = userAnsIdx === q.answer;
+                const userAnsText = userAnsIdx !== null ? q.options[userAnsIdx] : 'No Answer';
+                const correctAnsText = q.options[q.answer];
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border ${isCorrect ? 'bg-emerald-50/40 border-emerald-200' : 'bg-rose-50/40 border-rose-200'} text-xs md:text-sm`;
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="font-bold text-slate-900">Q${idx + 1} (Grade ${q.grade})</span>
+                        <span class="font-semibold px-2 py-0.5 rounded text-[11px] ${isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                            ${isCorrect ? 'Correct' : 'Incorrect'}
+                        </span>
+                    </div>
+                    <p class="text-slate-700 font-medium mb-2">${q.question}</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-1 text-slate-600 mb-2">
+                        <div>Your answer: <span class="${isCorrect ? 'text-emerald-700 font-semibold' : 'text-rose-700 font-semibold'}">${userAnsText}</span></div>
+                        ${!isCorrect ? `<div>Correct answer: <span class="text-emerald-700 font-semibold">${correctAnsText}</span></div>` : ''}
+                    </div>
+                    <div class="text-slate-500 text-[11px] bg-white/80 p-2 rounded border border-slate-200/60">
+                        <strong class="text-slate-700">Explanation:</strong> ${q.explanation}
+                    </div>
+                `;
+                reviewContainer.appendChild(card);
+            });
+        }
+
+        function toggleReviewList() {
+            const reviewContainer = document.getElementById('review-container');
+            const toggleBtn = document.getElementById('toggle-review-btn');
+            if (reviewContainer.classList.contains('hidden')) {
+                reviewContainer.classList.remove('hidden');
+                toggleBtn.innerHTML = `<span>Hide Details</span> <i class="fa-solid fa-chevron-up ml-1 text-[10px]"></i>`;
+            } else {
+                reviewContainer.classList.add('hidden');
+                toggleBtn.innerHTML = `<span>View Details</span> <i class="fa-solid fa-chevron-down ml-1 text-[10px]"></i>`;
+            }
+        }
+
+        function restartQuiz() {
+            resultsScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+            updateWelcomeHistoryBanner();
+        }
+
+        function printResults() {
+            window.print();
+        }
+
+        // Expose handlers globally for inline onclick attributes
+        window.startQuiz = startQuiz;
+        window.setQuestionCount = setQuestionCount;
+        window.resetHistory = resetHistory;
+        window.prevQuestion = prevQuestion;
+        window.nextQuestion = nextQuestion;
+        window.toggleReviewList = toggleReviewList;
+        window.restartQuiz = restartQuiz;
+        window.printResults = printResults;
+
+        // Self-audit all 36 procedural generators on startup to guarantee zero runtime errors
+        function runGeneratorDiagnostics() {
+            try {
+                for (let g = 1; g <= 12; g++) {
+                    const templates = gradeGenerators[g];
+                    if (!Array.isArray(templates) || templates.length < 3) {
+                        console.error(`Grade ${g} missing templates`);
+                        continue;
+                    }
+                    templates.forEach((fn, idx) => {
+                        const q = fn();
+                        const uniqueOpts = new Set(q.options);
+                        if (
+                            !q ||
+                            typeof q.question !== 'string' ||
+                            q.options.length !== 4 ||
+                            uniqueOpts.size !== 4 ||
+                            q.answer < 0 ||
+                            q.answer > 3 ||
+                            q.options.some(o => !o || o.includes('NaN') || o.includes('undefined'))
+                        ) {
+                            console.error(`Generator validation warning at Grade ${g} template ${idx}:`, q);
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error('Generator diagnostic error:', err);
+            }
+        }
+
+        // Initialize UI & attach listeners safely on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            const startBtn = document.getElementById('start-quiz-btn');
+            if (startBtn) {
+                startBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    startQuiz();
+                });
+            }
+            updateWelcomeHistoryBanner();
+            runGeneratorDiagnostics();
+        });
+    </script>
+</body>
+</html>
