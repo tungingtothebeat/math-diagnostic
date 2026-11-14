@@ -860,30 +860,92 @@
                         answer,
                         explanation: `Midpoint = ((${x1} + ${x2})/2, (${y1} + ${y2})/2) = (${mx}, ${my}).`
                     };
+                },
+                // Function Composition f(g(x))
+                () => {
+                    const m = rand(2, 4);
+                    const b = rand(1, 6);
+                    const k = rand(1, 5);
+                    const x = rand(1, 4);
+                    // g(x) = x^2 + k, f(x) = mx - b
+                    const gx = x * x + k;
+                    const ans = m * gx - b;
+                    const reverse = Math.pow(m * x - b, 2) + k;
+                    const { options, answer } = buildChoices(ans, [reverse, m * (x * x) - b, ans + m], (i) => ans + i * 3);
+                    return {
+                        grade: 10,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `Given f(x) = ${m}x - ${b} and g(x) = x² + ${k}, evaluate f(g(${x})).`,
+                        options,
+                        answer,
+                        explanation: `First compute g(${x}) = ${x}² + ${k} = ${gx}. Then evaluate f(${gx}) = ${m}(${gx}) - ${b} = ${ans}.`
+                    };
+                },
+                // Domain & Range of Shifted Radical Functions
+                () => {
+                    const h = rand(2, 9);
+                    const k = rand(1, 8);
+                    const askRange = Math.random() < 0.5;
+                    const ans = askRange ? `[${k}, ∞)` : `[${h}, ∞)`;
+                    const distractors = askRange
+                        ? [`[${h}, ∞)`, `(-∞, ${k}]`, `(${k}, ∞)`]
+                        : [`[${k}, ∞)`, `(-∞, ${h}]`, `(-${h}, ∞)`];
+                    const { options, answer } = buildChoices(ans, distractors);
+                    return {
+                        grade: 10,
+                        tier: "High School Foundation (Grades 9-10)",
+                        question: `What is the ${askRange ? 'range' : 'domain'} of f(x) = √(x - ${h}) + ${k}?`,
+                        options,
+                        answer,
+                        explanation: askRange
+                            ? `Since √(x - ${h}) ≥ 0 for all x ≥ ${h}, adding ${k} gives f(x) ≥ ${k}, so the range is [${k}, ∞).`
+                            : `The expression inside the square root must be non-negative: x - ${h} ≥ 0 → x ≥ ${h}, so the domain is [${h}, ∞).`
+                    };
                 }
             ],
 
             11: [
-                // Logarithms
+                // Logarithmic Equations & Properties
                 () => {
                     const base = pick([2, 3, 4, 5]);
                     const exp = rand(2, 5);
+                    const shift = rand(1, 7);
                     const val = Math.pow(base, exp);
-                    const { options, answer } = buildChoices(exp, [exp + 1, Math.max(1, exp - 1), base], (i) => exp + i + 1);
+                    const ans = val + shift;
+                    const { options, answer } = buildChoices(ans, [val - shift, base * exp + shift, Math.pow(exp, base) + shift], (i) => ans + i * 3);
                     return {
                         grade: 11,
                         tier: "Advanced High School (Grades 11-12)",
-                        question: `Evaluate log_${base}(${val}).`,
+                        question: `Solve for x: log_${base}(x - ${shift}) = ${exp}`,
                         options,
                         answer,
-                        explanation: `Since ${base}^${exp} = ${val}, log_${base}(${val}) = ${exp}.`
+                        explanation: `Rewrite in exponential form: x - ${shift} = ${base}^${exp} = ${val}, so x = ${val} + ${shift} = ${ans}.`
                     };
                 },
-                // Complex number arithmetic
+                // Rational Function Asymptotes & Domain Exclusions
+                () => {
+                    const a = rand(2, 6);
+                    const h = rand(2, 8);
+                    const c = rand(1, 5);
+                    const ans = `x = ${h}, y = ${a}`;
+                    const { options, answer } = buildChoices(ans, [
+                        `x = -${h}, y = ${a}`,
+                        `x = ${a}, y = ${h}`,
+                        `x = ${h}, y = 0`
+                    ]);
+                    return {
+                        grade: 11,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Find the vertical and horizontal asymptotes of f(x) = (${a}x + ${c}) / (x - ${h}).`,
+                        options,
+                        answer,
+                        explanation: `Setting the denominator to 0 gives vertical asymptote x = ${h}. The ratio of leading coefficients gives horizontal asymptote y = ${a}/1 = ${a}.`
+                    };
+                },
+                // Complex Number Arithmetic & Modulus
                 () => {
                     const a = rand(2, 6);
                     const b = rand(2, 6);
-                    // (a + bi)(a - bi) = a^2 + b^2
                     const ans = a * a + b * b;
                     const { options, answer } = buildChoices(ans, [a * a - b * b, `${ans}i`, a * 2 + b * 2], (i) => ans + i * 2);
                     return {
@@ -895,79 +957,128 @@
                         explanation: `Using difference of squares: ${a}² - (${b}i)² = ${a * a} - ${b * b}i². Since i² = -1, ${a * a} - (-${b * b}) = ${ans}.`
                     };
                 },
-                // Arithmetic sequence nth term
+                // 2x2 Matrix Determinant
                 () => {
-                    const a1 = rand(3, 12);
-                    const d = rand(3, 7);
-                    const n = rand(6, 11);
-                    const ans = a1 + (n - 1) * d;
-                    const { options, answer } = buildChoices(ans, [a1 + n * d, ans - d, a1 * n], (i) => ans + i * 2);
+                    const a = rand(2, 7);
+                    const b = rand(1, 5);
+                    const c = rand(1, 5);
+                    const d = rand(2, 7);
+                    const ans = a * d - b * c;
+                    const { options, answer } = buildChoices(ans, [a * d + b * c, b * c - a * d, a * b - c * d], (i) => ans + i * 2);
                     return {
                         grade: 11,
                         tier: "Advanced High School (Grades 11-12)",
-                        question: `In an arithmetic sequence, the first term is ${a1} and the common difference is ${d}. What is the ${n}th term?`,
+                        question: `Calculate the determinant of the 2×2 matrix [[${a}, ${b}], [${c}, ${d}]].`,
                         options,
                         answer,
-                        explanation: `a_n = a_1 + (n - 1)d = ${a1} + (${n} - 1)(${d}) = ${a1} + ${(n - 1) * d} = ${ans}.`
+                        explanation: `det = ad - bc = (${a})(${d}) - (${b})(${c}) = ${a * d} - ${b * c} = ${ans}.`
+                    };
+                },
+                // Four-Quadrant Unit Circle Trigonometry
+                () => {
+                    const angles = [
+                        { expr: "sin(2π / 3)", ans: "√3 / 2", wrong: ["-√3 / 2", "1/2", "-1/2"] },
+                        { expr: "cos(3π / 4)", ans: "-√2 / 2", wrong: ["√2 / 2", "-1/2", "1/2"] },
+                        { expr: "sin(7π / 6)", ans: "-1/2", wrong: ["1/2", "-√3 / 2", "√3 / 2"] },
+                        { expr: "cos(5π / 3)", ans: "1/2", wrong: ["-1/2", "√3 / 2", "-√3 / 2"] },
+                        { expr: "tan(5π / 4)", ans: "1", wrong: ["-1", "√3", "-√3 / 3"] },
+                        { expr: "sin(11π / 6)", ans: "-1/2", wrong: ["1/2", "-√3 / 2", "-√2 / 2"] },
+                        { expr: "cos(5π / 6)", ans: "-√3 / 2", wrong: ["√3 / 2", "-1/2", "1/2"] }
+                    ];
+                    const item = pick(angles);
+                    const { options, answer } = buildChoices(item.ans, item.wrong);
+                    return {
+                        grade: 11,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Find the exact value of ${item.expr}.`,
+                        options,
+                        answer,
+                        explanation: `Using reference angles and quadrant signs on the unit circle, ${item.expr} = ${item.ans}.`
                     };
                 }
             ],
 
             12: [
-                // Derivative of a polynomial evaluated at x = c
+                // AP Calculus: Derivative using Power & Chain Rule
                 () => {
                     const a = rand(2, 5);
-                    const b = rand(2, 8);
-                    const c = rand(1, 4);
-                    // f(x) = a*x^2 + b*x => f'(x) = 2*a*x + b
-                    const ans = 2 * a * c + b;
-                    const { options, answer } = buildChoices(ans, [a * c + b, a * c * c + b * c, 2 * a * c], (i) => ans + i * 2);
+                    const p = rand(3, 4);
+                    const b = rand(2, 7);
+                    const c = rand(1, 3);
+                    // f(x) = a*x^p - b*x^2 => f'(x) = a*p*x^(p-1) - 2*b*x
+                    const ans = a * p * Math.pow(c, p - 1) - 2 * b * c;
+                    const noPowerDrop = a * p * Math.pow(c, p) - 2 * b * c * c;
+                    const { options, answer } = buildChoices(ans, [noPowerDrop, ans + 2 * b, -ans], (i) => ans + i * 3);
                     return {
                         grade: 12,
                         tier: "Advanced High School (Grades 11-12)",
-                        question: `If f(x) = ${a}x² + ${b}x, what is f'(${c})?`,
+                        question: `If f(x) = ${a}x^${p} - ${b}x², find f'(${c}).`,
                         options,
                         answer,
-                        explanation: `Using the power rule, f'(x) = ${2 * a}x + ${b}. Evaluating at x = ${c} gives ${2 * a}(${c}) + ${b} = ${ans}.`
+                        explanation: `Differentiate using the power rule: f'(x) = ${a * p}x^${p - 1} - ${2 * b}x. Plugging in x = ${c} gives ${a * p}(${Math.pow(c, p - 1)}) - ${2 * b * c} = ${ans}.`
                     };
                 },
-                // Limit of a rational expression (removable discontinuity)
+                // AP Calculus: Removable Discontinuity & Conjugate Limits
                 () => {
-                    const k = rand(2, 7);
-                    const ans = 2 * k;
-                    const { options, answer } = buildChoices(ans, [0, k, k * k], (i) => ans + i + 1);
+                    const k = rand(2, 8);
+                    const m = rand(2, 5);
+                    // lim (x -> k) m*(x^2 - k^2)/(x - k) = 2*m*k
+                    const ans = 2 * m * k;
+                    const { options, answer } = buildChoices(ans, [0, m * k, m * k * k], (i) => ans + i * 2);
                     return {
                         grade: 12,
                         tier: "Advanced High School (Grades 11-12)",
-                        question: `Evaluate the limit: lim (x → ${k}) of (x² - ${k * k}) / (x - ${k})`,
+                        question: `Evaluate the limit: lim (x → ${k}) of [${m}(x² - ${k * k})] / (x - ${k})`,
                         options,
                         answer,
-                        explanation: `Factor the numerator as (x - ${k})(x + ${k}) and cancel (x - ${k}). Substituting x = ${k} into (x + ${k}) yields ${ans}.`
+                        explanation: `Factor the numerator as ${m}(x - ${k})(x + ${k}) and cancel (x - ${k}). Evaluating ${m}(${k} + ${k}) gives ${ans}.`
                     };
                 },
-                // Exact unit circle trigonometry values
+                // AP Calculus: Definite Integral Evaluation
                 () => {
-                    const unitCircle = [
-                        { expr: "sin(π / 6)", ans: "1/2", wrong: ["√3 / 2", "√2 / 2", "1"] },
-                        { expr: "cos(π / 3)", ans: "1/2", wrong: ["√3 / 2", "√2 / 2", "0"] },
-                        { expr: "sin(π / 3)", ans: "√3 / 2", wrong: ["1/2", "√2 / 2", "1"] },
-                        { expr: "cos(π / 4)", ans: "√2 / 2", wrong: ["1/2", "√3 / 2", "1"] },
-                        { expr: "tan(π / 4)", ans: "1", wrong: ["0", "√3", "1/2"] }
+                    const a = rand(1, 3) * 3; // divisible by 3 for clean x^3 antiderivative
+                    const b = rand(1, 4) * 2; // divisible by 2 for clean x^2 antiderivative
+                    const upper = rand(2, 3);
+                    // ∫_0^upper (a*x^2 + b*x) dx = (a/3)*upper^3 + (b/2)*upper^2
+                    const ans = (a / 3) * Math.pow(upper, 3) + (b / 2) * Math.pow(upper, 2);
+                    const noIntegralMistake = a * upper * upper + b * upper;
+                    const { options, answer } = buildChoices(ans, [noIntegralMistake, ans + upper, Math.max(1, ans - b)], (i) => ans + i * 2);
+                    return {
+                        grade: 12,
+                        tier: "Advanced High School (Grades 11-12)",
+                        question: `Evaluate the definite integral: ∫₀^${upper} (${a}x² + ${b}x) dx`,
+                        options,
+                        answer,
+                        explanation: `The antiderivative is F(x) = ${a / 3}x³ + ${b / 2}x². Evaluating F(${upper}) - F(0) gives ${a / 3}(${Math.pow(upper, 3)}) + ${b / 2}(${Math.pow(upper, 2)}) = ${ans}.`
+                    };
+                },
+                // Pythagorean Trig Identity & Quadrant Analysis
+                () => {
+                    const triples = [
+                        { sin: "3/5", cos: "-4/5", quad: "Quadrant II" },
+                        { sin: "-5/13", cos: "-12/13", quad: "Quadrant III" },
+                        { sin: "-8/17", cos: "15/17", quad: "Quadrant IV" },
+                        { sin: "12/13", cos: "-5/13", quad: "Quadrant II" }
                     ];
-                    const item = pick(unitCircle);
-                    const { options, answer } = buildChoices(item.ans, item.wrong);
+                    const item = pick(triples);
+                    const { options, answer } = buildChoices(item.cos, [
+                        item.cos.startsWith('-') ? item.cos.slice(1) : `-${item.cos}`,
+                        item.sin,
+                        item.sin.startsWith('-') ? item.sin.slice(1) : `-${item.sin}`
+                    ]);
                     return {
                         grade: 12,
                         tier: "Advanced High School (Grades 11-12)",
-                        question: `What is the exact value of ${item.expr}?`,
+                        question: `If sin(θ) = ${item.sin} and θ lies in ${item.quad}, what is the exact value of cos(θ)?`,
                         options,
                         answer,
-                        explanation: `From the unit circle, ${item.expr} = ${item.ans}.`
+                        explanation: `Using sin²(θ) + cos²(θ) = 1 and applying the sign of cosine in ${item.quad} yields cos(θ) = ${item.cos}.`
                     };
                 }
             ]
         };
 
+        const PLACED_LEVEL_KEY = 'mathCompass_placedLevel_v1';
         let selectedQuestionCount = 12;
         let questions = [];
         let currentQuestionIndex = 0;
@@ -1006,10 +1117,33 @@
             }
         }
 
+        function getPlacedLevel() {
+            try {
+                const raw = localStorage.getItem(PLACED_LEVEL_KEY);
+                return raw ? parseFloat(raw) : 0;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        function savePlacedLevel(level) {
+            try {
+                localStorage.setItem(PLACED_LEVEL_KEY, String(level));
+            } catch (e) {}
+        }
+
+        function getMinGradeFloor() {
+            const lastLevel = getPlacedLevel();
+            if (lastLevel >= 11) return 7; // Skip Grades 1-6 for 11th/12th grade placements
+            if (lastLevel >= 8) return 4;  // Skip Grades 1-3 for 8th-10th grade placements
+            return 1;
+        }
+
         function getStruggledGrades() {
             const history = getGradeHistory();
+            const minGrade = getMinGradeFloor();
             const struggled = [];
-            for (let g = 1; g <= 12; g++) {
+            for (let g = minGrade; g <= 12; g++) {
                 const record = history[g];
                 if (record && record.attempted > 0) {
                     const accuracy = record.correct / record.attempted;
@@ -1027,11 +1161,21 @@
             const banner = document.getElementById('history-banner');
             const bannerText = document.getElementById('history-banner-text');
             const struggled = getStruggledGrades();
+            const minGrade = getMinGradeFloor();
+            const lastLevel = getPlacedLevel();
 
+            const messages = [];
+            if (minGrade > 1) {
+                messages.push(`Placed at Grade ${lastLevel.toFixed(1)} — skipping Grades 1–${minGrade - 1} to focus on Grades ${minGrade}–12.`);
+            }
             if (struggled.length > 0) {
                 const gradeLabels = struggled.slice(0, 4).map(item => `Grade ${item.grade}`);
                 const extraCount = struggled.length > 4 ? ` (+${struggled.length - 4} more)` : '';
-                bannerText.textContent = `Weighting extra practice toward past weak areas: ${gradeLabels.join(', ')}${extraCount}.`;
+                messages.push(`Weighting extra practice toward: ${gradeLabels.join(', ')}${extraCount}.`);
+            }
+
+            if (messages.length > 0) {
+                bannerText.textContent = messages.join(' ');
                 banner.classList.remove('hidden');
             } else {
                 banner.classList.add('hidden');
@@ -1041,6 +1185,7 @@
         function resetHistory() {
             try {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.removeItem(PLACED_LEVEL_KEY);
             } catch (e) {}
             updateWelcomeHistoryBanner();
         }
@@ -1061,30 +1206,31 @@
                 }
             });
         }
-
-        // Build test questions dynamically weighted by past performance while guaranteeing 1-12 coverage
+        // Build test questions dynamically weighted by past performance with smart grade-floor skipping
         function generateAdaptiveQuestionSet(totalCount) {
             const history = getGradeHistory();
+            const minGrade = getMinGradeFloor();
+            const activeGradeCount = 12 - minGrade + 1;
 
-            // Guarantee at least 1 question per grade (1 to 12) so full grade spectrum is always evaluated
+            // Guarantee at least 1 question per active grade (minGrade to 12)
             const allocation = {};
             for (let g = 1; g <= 12; g++) {
-                allocation[g] = 1;
+                allocation[g] = g >= minGrade ? 1 : 0;
             }
 
-            let remainingSlots = totalCount - 12;
+            let remainingSlots = Math.max(0, totalCount - activeGradeCount);
 
-            // Compute struggle weight per grade (higher weight = more struggled in past tests)
+            // Compute struggle weight per active grade (higher weight = more struggled in past tests)
             const weights = {};
             let totalWeight = 0;
-            for (let g = 1; g <= 12; g++) {
+            for (let g = minGrade; g <= 12; g++) {
                 const rec = history[g];
                 let w = 1.0;
                 if (rec && rec.attempted > 0) {
                     const acc = rec.correct / rec.attempted;
                     if (acc < 0.4) w = 4.0;       // Heavy struggle -> 4x weight
                     else if (acc < 0.7) w = 2.5;  // Moderate struggle -> 2.5x weight
-                    else if (acc >= 0.9) w = 0.6; // Mastered -> lighter extra allocation
+                    else if (acc >= 0.9) w = 0.75; // Mastered -> lighter extra allocation
                 }
                 weights[g] = w;
                 totalWeight += w;
@@ -1093,8 +1239,8 @@
             // Distribute remaining question slots proportionally to struggle weights
             while (remainingSlots > 0) {
                 let pickRand = Math.random() * totalWeight;
-                let chosenGrade = 1;
-                for (let g = 1; g <= 12; g++) {
+                let chosenGrade = minGrade;
+                for (let g = minGrade; g <= 12; g++) {
                     pickRand -= weights[g];
                     if (pickRand <= 0) {
                         chosenGrade = g;
@@ -1105,11 +1251,11 @@
                 remainingSlots--;
             }
 
-            // Generate unique procedural questions per grade (Grades 1 to 12)
+            // Generate unique procedural questions per active grade
             const selected = [];
             const seenPrompts = new Set();
 
-            for (let g = 1; g <= 12; g++) {
+            for (let g = minGrade; g <= 12; g++) {
                 const countForGrade = allocation[g];
                 const templates = gradeGenerators[g];
 
@@ -1117,13 +1263,12 @@
                     let generated = null;
                     let attempts = 0;
 
-                    // Rotate through available templates first, then pick randomly while avoiding duplicate prompts
-                    while (attempts < 30) {
+                    while (attempts < 35) {
                         const templateFn = attempts < templates.length
                             ? templates[(i + attempts) % templates.length]
                             : pick(templates);
                         const candidate = templateFn();
-                        if (!seenPrompts.has(candidate.question) || attempts === 29) {
+                        if (!seenPrompts.has(candidate.question) || attempts === 34) {
                             seenPrompts.add(candidate.question);
                             generated = candidate;
                             break;
@@ -1217,11 +1362,13 @@
             headerProgress.classList.add('hidden');
             resultsScreen.classList.remove('hidden');
 
+            const minGrade = getMinGradeFloor();
+
             // Calculate Score, Per-Grade Stats & Update Persistent History
             let correctCount = 0;
             const currentTestGradeStats = {};
             for (let g = 1; g <= 12; g++) {
-                currentTestGradeStats[g] = { correct: 0, total: 0 };
+                currentTestGradeStats[g] = { correct: 0, total: 0, skippedMastered: g < minGrade };
             }
 
             const tierScores = {
@@ -1255,13 +1402,12 @@
             // Save updated history for future tests
             saveGradeHistory(history);
 
-            // Diagnostic estimation algorithm scaled across all 12 grades:
-            // Evaluate mastery (>= 50% accuracy) per grade level sequentially with 1-grade slip tolerance
-            let estimatedGradeNum = 1;
+            // Diagnostic estimation algorithm across all 12 grades (crediting skipped lower grades as mastered)
+            let estimatedGradeNum = minGrade > 1 ? minGrade - 1 : 1;
             let consecutiveMisses = 0;
             for (let g = 1; g <= 12; g++) {
                 const stats = currentTestGradeStats[g];
-                const gradeAcc = stats.total > 0 ? stats.correct / stats.total : 0;
+                const gradeAcc = stats.skippedMastered ? 1.0 : (stats.total > 0 ? stats.correct / stats.total : 0);
                 if (gradeAcc >= 0.5) {
                     estimatedGradeNum = g;
                     consecutiveMisses = 0;
@@ -1277,7 +1423,10 @@
             const percentage = Math.round((correctCount / questions.length) * 100);
             if (percentage >= 92) estimatedGradeNum = Math.max(estimatedGradeNum, 12);
             else if (percentage >= 80) estimatedGradeNum = Math.max(estimatedGradeNum, 10);
-            else if (percentage <= 15) estimatedGradeNum = Math.min(estimatedGradeNum, 2);
+            else if (percentage <= 15 && minGrade === 1) estimatedGradeNum = Math.min(estimatedGradeNum, 2);
+
+            // Persist placed grade level so future tests skip lower elementary grades when appropriate
+            savePlacedLevel(estimatedGradeNum);
 
             // Populate Results UI
             document.getElementById('result-grade-level').textContent = `Grade ${estimatedGradeNum}`;
@@ -1318,30 +1467,34 @@
             breakdownGrid.innerHTML = '';
             for (let g = 1; g <= 12; g++) {
                 const st = currentTestGradeStats[g];
-                const gPct = st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0;
-                const isWeak = gPct < 60;
-                const isPerfect = gPct === 100;
+                const gPct = st.skippedMastered ? 100 : (st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0);
+                const isWeak = !st.skippedMastered && gPct < 60;
+                const isPerfect = st.skippedMastered || gPct === 100;
 
-                const badgeColor = isPerfect
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-                    : isWeak
-                        ? 'bg-amber-100 text-amber-800 border-amber-200'
-                        : 'bg-blue-100 text-blue-800 border-blue-200';
-                const barColor = isPerfect ? 'bg-emerald-500' : isWeak ? 'bg-amber-500' : 'bg-blue-500';
+                const badgeColor = st.skippedMastered
+                    ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                    : isPerfect
+                        ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                        : isWeak
+                            ? 'bg-amber-100 text-amber-800 border-amber-200'
+                            : 'bg-blue-100 text-blue-800 border-blue-200';
+                const barColor = st.skippedMastered ? 'bg-indigo-500' : isPerfect ? 'bg-emerald-500' : isWeak ? 'bg-amber-500' : 'bg-blue-500';
+                const badgeText = st.skippedMastered ? 'Mastered' : `${st.correct}/${st.total}`;
+                const statusLabel = st.skippedMastered ? 'Skipped (Prior)' : (isWeak ? 'Focus next' : 'Solid');
 
                 const cell = document.createElement('div');
                 cell.className = 'bg-white border border-slate-200/80 rounded-xl p-3 flex flex-col justify-between';
                 cell.innerHTML = `
                     <div class="flex items-center justify-between mb-1.5">
                         <span class="text-xs font-bold text-slate-800">Grade ${g}</span>
-                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${badgeColor}">${st.correct}/${st.total}</span>
+                        <span class="text-[10px] font-bold px-1.5 py-0.5 rounded border ${badgeColor}">${badgeText}</span>
                     </div>
                     <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden mb-1">
                         <div class="${barColor} h-1.5 rounded-full" style="width: ${gPct}%"></div>
                     </div>
                     <div class="flex justify-between items-center text-[10px] text-slate-500">
                         <span>${gPct}%</span>
-                        <span>${isWeak ? 'Focus next' : 'Solid'}</span>
+                        <span>${statusLabel}</span>
                     </div>
                 `;
                 breakdownGrid.appendChild(cell);
